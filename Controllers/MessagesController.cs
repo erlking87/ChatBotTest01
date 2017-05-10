@@ -10,6 +10,10 @@ using Newtonsoft.Json;
 using Bot_Application1.Lib;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Luis;
+using Microsoft.Bot.Builder.Luis.Models;
+using Bot_Application1.Controllers;
 
 namespace Bot_Application1
 {
@@ -22,27 +26,8 @@ namespace Bot_Application1
         /// </summary>
         /// 
 
-        struct Card
-        {
-            string sid;
-            string carTitle;
-
-            public Card(string sid, string carTitle)
-            {
-                this.sid = sid;
-                this.carTitle = carTitle;
-            }
-            //string carImage;
-            //string carButton;
-            //string carButtonContent;
-        }
-
-        List<Card> card = null;
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            string strConn = "Data Source=faxtimedb.database.windows.net;Initial Catalog=taihoML;User ID=faxtime;Password=test2016!;";
-
-            card = new List<Card>();
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
@@ -100,38 +85,8 @@ namespace Bot_Application1
                     }
                 }
 
-                /*
-                List<CardImage> cardImages = new List<CardImage>();
-                cardImages.Add(new CardImage(url: "http://webbot02.azurewebsites.net/hyundai/images/price/Grandeur_24spec.PNG"));
-                cardImages.Add(new CardImage(url: "http://webbot02.azurewebsites.net/hyundai/images/price/Grandeur_30spec.PNG"));
-
-                List<CardAction> cardButtons = new List<CardAction>();
-
-                CardAction plButton = new CardAction()
-                {
-                    Value = "car1",
-                    Type = "imBack",
-                    Title = "WikiPedia Page"
-                };
-                cardButtons.Add(plButton);
-
-                HeroCard plCard = new HeroCard()
-                {
-                    Title = "I'm a hero card1",
-                    Subtitle = "Pig Latin Wikipedia Page",
-                    Images = cardImages,
-                    Buttons = cardButtons
-                };
-
-                Attachment plAttachment = plCard.ToAttachment();
-                Attachment plAttachment2 = plCard.ToAttachment();
-
-                replyToConversation.Attachments.Add(plAttachment);
-                replyToConversation.Attachments.Add(plAttachment2);
-                */
-
                 var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
-
+                await Conversation.SendAsync(activity, () => new LuisController());
             }
             else
             {
@@ -169,5 +124,7 @@ namespace Bot_Application1
 
             return null;
         }
+
     }
+
 }
