@@ -86,7 +86,7 @@ namespace Bot_Application1
                 }
 
                 var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
-                await Conversation.SendAsync(activity, () => new LuisController());
+                //await Conversation.SendAsync(activity, () => new LuisController());
             }
             else
             {
