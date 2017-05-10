@@ -13,7 +13,7 @@ using System.Data.SqlClient;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
-using Bot_Application1.Controllers;
+
 
 namespace Bot_Application1
 {

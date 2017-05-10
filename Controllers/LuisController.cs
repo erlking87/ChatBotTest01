@@ -8,7 +8,7 @@ using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using System.Threading.Tasks;
 
-namespace Bot_Application1.Controllers
+namespace Bot_Application1
 {
     [LuisModel("28745440-fd03-4658-b190-9c154fe89d89", "7efb093087dd48918b903885b944740c")]
     [Serializable]
