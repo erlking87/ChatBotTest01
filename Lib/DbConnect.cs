@@ -47,7 +47,7 @@ namespace Bot_Application1.Lib
 
         }
 
-        public List<Car> SelectDb()
+        public List<Car> SelectDb(string intent)
         {
             SqlDataReader rdr = null;
             List<Car> card = new List<Car>();
@@ -57,7 +57,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "select * from tbl_card_test";
+                cmd.CommandText = "select * from tbl_card_test where INTENT = '"+ intent + "'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 

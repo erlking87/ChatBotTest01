@@ -13,6 +13,7 @@ using System.Data.SqlClient;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
+using System.Diagnostics;
 
 
 namespace Bot_Application1
@@ -25,12 +26,18 @@ namespace Bot_Application1
         /// Receive a message from a user and reply to it
         /// </summary>
         /// 
-
+        
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             if (activity.Type == ActivityTypes.Message)
             {
+                //Console.WriteLine("aaa : "+ activity.Text);
+                Debug.WriteLine("Debuging : " + activity.Text);
+                LUIS Luis = await GetIntentFromLUIS(activity.Text);
+                Debug.WriteLine("Debuging : " + Luis.intents[0].intent);
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+
+                //await Conversation.SendAsync(activity, () => new LuisController());
 
                 // calculate something for us to return
                 int length = (activity.Text ?? string.Empty).Length;
@@ -41,7 +48,7 @@ namespace Bot_Application1
 
                 // Db
                 DbConnect db = new DbConnect();
-                List<Car> car = db.SelectDb();
+                List<Car> car = db.SelectDb(Luis.intents[0].intent);
 
                 // HeroCard
                 Activity replyToConversation = activity.CreateReply("Should go to conversation, with a hero card");
@@ -86,11 +93,11 @@ namespace Bot_Application1
                 }
 
                 var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
-                await Conversation.SendAsync(activity, () => new LuisController());
+                //await Conversation.SendAsync(activity, () => new LuisController());
             }
             else
             {
-                HandleSystemMessage(activity);
+                //HandleSystemMessage(activity);
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
@@ -124,6 +131,24 @@ namespace Bot_Application1
 
             return null;
         }
+
+        private static async Task<LUIS> GetIntentFromLUIS(string Query)
+    {
+        Query = Uri.EscapeDataString(Query);
+        LUIS Data = new LUIS();
+        using (HttpClient client = new HttpClient())
+        {
+            string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=28745440-fd03-4658-b190-9c154fe89d89&subscription-key=7efb093087dd48918b903885b944740c&q=" + Query;
+            HttpResponseMessage msg = await client.GetAsync(RequestURI);
+
+            if (msg.IsSuccessStatusCode)
+            {
+                var JsonDataResponse = await msg.Content.ReadAsStringAsync();
+                Data = JsonConvert.DeserializeObject<LUIS>(JsonDataResponse);
+            }
+        }
+        return Data;
+    }
 
     }
 

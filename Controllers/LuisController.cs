@@ -30,5 +30,19 @@ namespace Bot_Application1
             await context.PostAsync(message);
             context.Wait(MessageReceived);
         }
+
+        [LuisIntent("korPriceMain")]
+        public async Task KorPriceMain(IDialogContext context, LuisResult result)
+        {
+            string message = $"korPriceMain!!!";
+            await context.PostAsync(message);
+            context.Wait(MessageReceived);
+        }
     }
+
+    
+
+
+
+
 }
