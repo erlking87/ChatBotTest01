@@ -12,10 +12,14 @@ namespace Bot_Application1.Lib
     public class Car
     {
         public string sid;
-        public string carTitle;
-        public string carImage;
-        public string carButton;
-        public string carButtonContent;
+        public string cardType;
+        public string cardMent;
+        public string cardTitle;
+        public string cardSubTitle;
+        public string cardMedia;
+        public string cardImage;
+        public string cardButton;
+        public string cardButtonContent;
         public string erase;
     }
 
@@ -64,18 +68,26 @@ namespace Bot_Application1.Lib
                 while (rdr.Read())
                 {
                     string sid = rdr["SID"].ToString();
-                    string carTitle = rdr["CAR_TITLE"] as string;
-                    string carImage = rdr["CAR_IMAGE"] as string;
-                    string carButton = rdr["CAR_BUTTON"] as string;
-                    string carButtonContent = rdr["CAR_BUTTON_CONTENT"] as string;
+                    string cardType = rdr["CARD_TYPE"] as string;
+                    string cardMent = rdr["CARD_MENT"] as string;
+                    string cardTitle = rdr["CARD_TITLE"] as string;
+                    string cardSubTitle = rdr["CARD_SUBTITLE"] as string;
+                    string cardMedia = rdr["CARD_MEDIA"] as string;
+                    string cardImage = rdr["CARD_IMAGE"] as string;
+                    string cardButton = rdr["CARD_BUTTON"] as string;
+                    string cardButtonContent = rdr["CARD_BUTTON_CONTENT"] as string;
                     string erase = rdr["ERASE"] as string;
 
                     Car car = new Car();
                     car.sid = sid;
-                    car.carTitle = carTitle;
-                    car.carImage = carImage;
-                    car.carButton = carButton;
-                    car.carButtonContent = carButtonContent;
+                    car.cardType = cardType;
+                    car.cardMent = cardMent;
+                    car.cardTitle = cardTitle;
+                    car.cardSubTitle = cardSubTitle;
+                    car.cardMedia = cardImage;
+                    car.cardImage = cardImage;
+                    car.cardButton = cardButton;
+                    car.cardButtonContent = cardButtonContent;
                     car.erase = erase;
 
                     card.Add(car);

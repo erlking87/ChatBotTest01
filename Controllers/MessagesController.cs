@@ -42,47 +42,49 @@ namespace Bot_Application1
                 // calculate something for us to return
                 int length = (activity.Text ?? string.Empty).Length;
 
-                // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                
 
                 // Db
                 DbConnect db = new DbConnect();
-                List<Car> car = db.SelectDb(Luis.intents[0].intent);
+                List<Car> card = db.SelectDb(Luis.intents[0].intent);
+
+                // return our reply to the user
+                Activity reply = activity.CreateReply(card[0].cardMent);
+                await connector.Conversations.ReplyToActivityAsync(reply);
 
                 // HeroCard
-                Activity replyToConversation = activity.CreateReply("Should go to conversation, with a hero card");
+                Activity replyToConversation = activity.CreateReply("");
 
                 replyToConversation.Recipient = activity.From;
                 replyToConversation.Type = "message";
                 replyToConversation.Attachments = new List<Attachment>();
                 replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                List<CardImage>[] cardImages = new List<CardImage>[car.Count];
-                List<CardAction>[] cardButtons = new List<CardAction>[car.Count];
-                CardAction[] plButton = new CardAction[car.Count];
-                HeroCard[] plCard = new HeroCard[car.Count];
-                Attachment[] plAttachment = new Attachment[car.Count];
+                List<CardImage>[] cardImages = new List<CardImage>[card.Count];
+                List<CardAction>[] cardButtons = new List<CardAction>[card.Count];
+                CardAction[] plButton = new CardAction[card.Count];
+                HeroCard[] plCard = new HeroCard[card.Count];
+                Attachment[] plAttachment = new Attachment[card.Count];
 
-                for (int i = 0; i < car.Count; i++)
+                for (int i = 0; i < card.Count; i++)
                 {
-                    if(car[i].erase == "F")
+                    if(card[i].erase == "F")
                     {
                         cardImages[i] = new List<CardImage>();
-                        cardImages[i].Add(new CardImage(url: car[i].carImage));
+                        cardImages[i].Add(new CardImage(url: card[i].cardImage));
 
                         cardButtons[i] = new List<CardAction>();                        
                         plButton[i] = new CardAction()
                         {
-                            Value = car[i].carButtonContent,
+                            Value = card[i].cardButtonContent,
                             Type = "imBack",
-                            Title = car[i].carButton
+                            Title = card[i].cardButton
                         };
                         cardButtons[i].Add(plButton[i]);
 
                         plCard[i] = new HeroCard()
                         {
-                            Title = car[i].carTitle,
+                            Title = card[i].cardTitle,
                             Images = cardImages[i],
                             Buttons = cardButtons[i]
                         };
