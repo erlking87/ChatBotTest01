@@ -12,10 +12,12 @@ namespace Bot_Application1.Lib
     public class Car
     {
         public string sid;
+        public string language;
         public string cardType;
         public string cardMent;
         public string cardTitle;
         public string cardSubTitle;
+        public string cardText;
         public string cardMedia;
         public string cardImage;
         public string cardButton;
@@ -68,10 +70,12 @@ namespace Bot_Application1.Lib
                 while (rdr.Read())
                 {
                     string sid = rdr["SID"].ToString();
+                    string language = rdr["LANGUAGE"] as string;
                     string cardType = rdr["CARD_TYPE"] as string;
                     string cardMent = rdr["CARD_MENT"] as string;
                     string cardTitle = rdr["CARD_TITLE"] as string;
                     string cardSubTitle = rdr["CARD_SUBTITLE"] as string;
+                    string cardText = rdr["CARD_TEXT"] as string;
                     string cardMedia = rdr["CARD_MEDIA"] as string;
                     string cardImage = rdr["CARD_IMAGE"] as string;
                     string cardButton = rdr["CARD_BUTTON"] as string;
@@ -80,10 +84,12 @@ namespace Bot_Application1.Lib
 
                     Car car = new Car();
                     car.sid = sid;
+                    car.language = language;
                     car.cardType = cardType;
                     car.cardMent = cardMent;
                     car.cardTitle = cardTitle;
                     car.cardSubTitle = cardSubTitle;
+                    car.cardText = cardText;
                     car.cardMedia = cardImage;
                     car.cardImage = cardImage;
                     car.cardButton = cardButton;

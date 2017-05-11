@@ -31,18 +31,10 @@ namespace Bot_Application1
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                //Console.WriteLine("aaa : "+ activity.Text);
                 Debug.WriteLine("Debuging : " + activity.Text);
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
                 Debug.WriteLine("Debuging : " + Luis.intents[0].intent);
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-
-                //await Conversation.SendAsync(activity, () => new LuisController());
-
-                // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
-
-                
 
                 // Db
                 DbConnect db = new DbConnect();
@@ -73,18 +65,28 @@ namespace Bot_Application1
                         cardImages[i] = new List<CardImage>();
                         cardImages[i].Add(new CardImage(url: card[i].cardImage));
 
-                        cardButtons[i] = new List<CardAction>();                        
-                        plButton[i] = new CardAction()
+                        cardButtons[i] = new List<CardAction>();
+                        if (card[i].cardButton != null)
                         {
-                            Value = card[i].cardButtonContent,
-                            Type = "imBack",
-                            Title = card[i].cardButton
-                        };
-                        cardButtons[i].Add(plButton[i]);
+                            Debug.WriteLine("???? : " + card[i].cardButton);
 
+                            plButton[i] = new CardAction()
+                            {
+                                Value = card[i].cardButtonContent,
+                                Type = "imBack",
+                                Title = card[i].cardButton
+                            };
+                            cardButtons[i].Add(plButton[i]);
+                        }
+                        //else
+                        //{
+                            
+                        //}
                         plCard[i] = new HeroCard()
                         {
                             Title = card[i].cardTitle,
+                            Text = card[i].cardText,
+                            Subtitle = card[i].cardSubTitle,
                             Images = cardImages[i],
                             Buttons = cardButtons[i]
                         };
@@ -95,11 +97,10 @@ namespace Bot_Application1
                 }
 
                 var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
-                //await Conversation.SendAsync(activity, () => new LuisController());
             }
             else
             {
-                //HandleSystemMessage(activity);
+                HandleSystemMessage(activity);
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
