@@ -33,7 +33,7 @@ namespace Bot_Application1
             {
                 Debug.WriteLine("Debuging : " + activity.Text);
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
-                Debug.WriteLine("Debuging : " + Luis.intents[0].intent);
+                Debug.WriteLine("Debuging :  " + Luis.intents[0].intent);
                 Debug.WriteLine("Debuging : " + Luis.entities[0].entity);
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
