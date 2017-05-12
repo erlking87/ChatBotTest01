@@ -63,8 +63,11 @@ namespace Bot_Application1
                     if(card[i].erase == "F")
                     {
                         cardImages[i] = new List<CardImage>();
-                        cardImages[i].Add(new CardImage(url: card[i].cardImage));
-
+                        if (card[i].cardImage != null)
+                        {
+                            cardImages[i].Add(new CardImage(url: card[i].cardImage));
+                        }
+                        
                         cardButtons[i] = new List<CardAction>();
                         if (card[i].cardButton != null)
                         {
@@ -82,15 +85,19 @@ namespace Bot_Application1
                         //{
                             
                         //}
-                        plCard[i] = new HeroCard()
-                        {
-                            Title = card[i].cardTitle,
-                            Text = card[i].cardText,
-                            Subtitle = card[i].cardSubTitle,
-                            Images = cardImages[i],
-                            Buttons = cardButtons[i]
-                        };
 
+                        if(card[i].cardType == "HEROCARD")
+                        {
+                            plCard[i] = new HeroCard()
+                            {
+                                Title = card[i].cardTitle,
+                                Text = card[i].cardText,
+                                Subtitle = card[i].cardSubTitle,
+                                Images = cardImages[i],
+                                Buttons = cardButtons[i]
+                            };
+                        }
+                        
                         plAttachment[i] = plCard[i].ToAttachment();
                         replyToConversation.Attachments.Add(plAttachment[i]);
                     }
