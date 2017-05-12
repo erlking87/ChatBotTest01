@@ -29,7 +29,65 @@ namespace Bot_Application1
         
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            if (activity.Type == ActivityTypes.Message)
+            // welcome message 출력   
+            if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
+            {
+
+                //비디오카드 선언
+                VideoCard vdCard = new VideoCard()
+                {
+                    Title = "그랜다이저",
+                    Autostart = true,
+                    Subtitle = "Grandizer",
+                    Text = "안녕하세요. 저는 현대자동차의 그랜저 ig를 소개하는 그랜다이저예요. \n\n 대화중 언제든지'그랜다이저' 라고 입력하면 초기 화면으로 돌아가요.            \n\n Hi. My name is Grandizer. \n\n At any time, type 'Grandizer' to return to the initial screen. ",
+                    Image = new ThumbnailUrl
+                    {
+                        Url = "http://webbot02.azurewebsites.net/hyundai/images/img_car01.jpg"
+                    },
+                    Media = new List<MediaUrl>
+                    {
+                        new MediaUrl()
+                        {
+                            Url = "http://webbot02.azurewebsites.net/openning.wav"
+                        }
+                    },
+                    Buttons = new List<CardAction>
+                    {
+                        new CardAction()
+                        {
+                            Title = "가격",
+                            Type = ActionTypes.ImBack,
+                            Value = "가격을 보여줘"
+                        },
+                        new CardAction()
+                        {
+                            Title = "누르지마",
+                            Type = ActionTypes.ImBack,
+                            Value = "NO!NO!NO!"
+                        }
+                    }
+                };
+
+                Attachment plAttachment = new Attachment();
+                plAttachment = vdCard.ToAttachment();
+
+                var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                Activity reply = activity.CreateReply("");
+
+                reply.Recipient = activity.From;
+                reply.Type = "message";
+                reply.Attachments = new List<Attachment>();
+                reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+                plAttachment = vdCard.ToAttachment();
+                reply.Attachments.Add(plAttachment);
+
+                var reply1 = await connector.Conversations.SendToConversationAsync(reply);
+
+
+
+            }
+            else if (activity.Type == ActivityTypes.Message)
             {
                 Debug.WriteLine("Debuging : " + activity.Text);
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
