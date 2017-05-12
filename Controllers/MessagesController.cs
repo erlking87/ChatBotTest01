@@ -34,6 +34,7 @@ namespace Bot_Application1
                 Debug.WriteLine("Debuging : " + activity.Text);
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
                 Debug.WriteLine("Debuging : " + Luis.intents[0].intent);
+                Debug.WriteLine("Debuging : " + Luis.entities[0].entity);
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 // Db
@@ -148,8 +149,9 @@ namespace Bot_Application1
         LUIS Data = new LUIS();
         using (HttpClient client = new HttpClient())
         {
-            string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=28745440-fd03-4658-b190-9c154fe89d89&subscription-key=7efb093087dd48918b903885b944740c&q=" + Query;
-            HttpResponseMessage msg = await client.GetAsync(RequestURI);
+            //string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=28745440-fd03-4658-b190-9c154fe89d89&subscription-key=7efb093087dd48918b903885b944740c&q=" + Query;
+              string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=1adab70c-f7a6-4d5c-9809-c27672653896&subscription-key=7489b95cf3fb4797939ea70ce94a4b11&q=" + Query;
+                HttpResponseMessage msg = await client.GetAsync(RequestURI);
 
             if (msg.IsSuccessStatusCode)
             {
