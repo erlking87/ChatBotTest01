@@ -29,6 +29,7 @@ namespace Bot_Application1
         
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            
             // welcome message 출력   
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
@@ -36,7 +37,7 @@ namespace Bot_Application1
                 //비디오카드 선언
                 VideoCard vdCard = new VideoCard()
                 {
-                    Title = "그랜다이저",
+                    Title = "그랜다이저11",
                     Autostart = true,
                     Subtitle = "Grandizer",
                     Text = "안녕하세요. 저는 현대자동차의 그랜저 ig를 소개하는 그랜다이저예요. \n\n 대화중 언제든지'그랜다이저' 라고 입력하면 초기 화면으로 돌아가요.            \n\n Hi. My name is Grandizer. \n\n At any time, type 'Grandizer' to return to the initial screen. ",
@@ -55,15 +56,15 @@ namespace Bot_Application1
                     {
                         new CardAction()
                         {
-                            Title = "가격",
+                            Title = "한국어",
                             Type = ActionTypes.ImBack,
-                            Value = "가격을 보여줘"
+                            Value = "한국어로 해줘"
                         },
                         new CardAction()
                         {
-                            Title = "누르지마",
+                            Title = "english",
                             Type = ActionTypes.ImBack,
-                            Value = "NO!NO!NO!"
+                            Value = "hey there"
                         }
                     }
                 };
