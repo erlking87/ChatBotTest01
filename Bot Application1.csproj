@@ -125,6 +125,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Lib\DbConnect_bak.cs" />
     <Compile Include="Lib\DbConnect.cs" />
     <Compile Include="Models\AdditionalProperties.cs" />
     <Compile Include="Models\CardEx.cs" />

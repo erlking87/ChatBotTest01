@@ -33,57 +33,143 @@ namespace Bot_Application1
             // welcome message 출력   
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
-
-                //비디오카드 선언
-                VideoCard vdCard = new VideoCard()
-                {
-                    Title = "그랜다이저11",
-                    Autostart = true,
-                    Subtitle = "Grandizer",
-                    Text = "안녕하세요. 저는 현대자동차의 그랜저 ig를 소개하는 그랜다이저예요. \n\n 대화중 언제든지'그랜다이저' 라고 입력하면 초기 화면으로 돌아가요.            \n\n Hi. My name is Grandizer. \n\n At any time, type 'Grandizer' to return to the initial screen. ",
-                    Image = new ThumbnailUrl
-                    {
-                        Url = "http://webbot02.azurewebsites.net/hyundai/images/img_car01.jpg"
-                    },
-                    Media = new List<MediaUrl>
-                    {
-                        new MediaUrl()
-                        {
-                            Url = "http://webbot02.azurewebsites.net/openning.wav"
-                        }
-                    },
-                    Buttons = new List<CardAction>
-                    {
-                        new CardAction()
-                        {
-                            Title = "한국어",
-                            Type = ActionTypes.ImBack,
-                            Value = "한국어로 해줘"
-                        },
-                        new CardAction()
-                        {
-                            Title = "english",
-                            Type = ActionTypes.ImBack,
-                            Value = "hey there"
-                        }
-                    }
-                };
-
-                Attachment plAttachment = new Attachment();
-                plAttachment = vdCard.ToAttachment();
-
-                var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 Activity reply = activity.CreateReply("");
-
+                
                 reply.Recipient = activity.From;
                 reply.Type = "message";
                 reply.Attachments = new List<Attachment>();
                 reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                plAttachment = vdCard.ToAttachment();
-                reply.Attachments.Add(plAttachment);
+                // Db
+                DbConnect db = new DbConnect();
+                List<Dialog> dlg = db.SelectDialog(3);
 
+                List<Card> card = db.SelectDialogCard(dlg[0].dlgId);
+
+                VideoCard[] plVideoCard = new VideoCard[card.Count];
+                HeroCard[] plHeroCard = new HeroCard[card.Count];
+                Attachment[] plAttachment = new Attachment[card.Count];
+
+                for (int i = 0; i < card.Count; i++)
+                {
+                    List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
+                    List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId);
+                    List<Media> media = db.SelectMedia(card[i].dlgId, card[i].cardId);
+
+                    List<CardAction> cardButtons = new List<CardAction>();
+                    CardAction[] plButton = new CardAction[btn.Count];
+
+                    List<CardImage> cardImages = new List<CardImage>();
+                    ThumbnailUrl plThumnail = new ThumbnailUrl();
+
+                    List<MediaUrl> mediaURL = new List<MediaUrl>();
+                    MediaUrl[] plMediaUrl = new MediaUrl[media.Count];
+
+                    for (int n = 0; n < img.Count; n++)
+                    {
+                        
+                        if (img[n].imgUrl != null)
+                        {
+                            plThumnail.Url = img[n].imgUrl;
+                        }
+                    }
+
+                    for (int l = 0; l < media.Count; l++)
+                    {
+                        if (media[l].mediaUrl != null)
+                        {
+                            plMediaUrl[l] = new MediaUrl()
+                            {
+                                Url = media[l].mediaUrl
+                            };
+                        }
+                    }
+                    mediaURL = new List<MediaUrl>(plMediaUrl);
+
+                    for (int m = 0; m < btn.Count; m++)
+                    {
+                        if (btn[m].btnTitle != null)
+                        {
+                            plButton[m] = new CardAction()
+                            {
+                                Value = btn[m].btnContext,
+                                Type = btn[m].btnType,
+                                Title = btn[m].btnTitle
+                            };
+                        }
+                    }
+                    cardButtons = new List<CardAction>(plButton);
+
+                    if (card[i].cardType == "videocard")
+                    {
+                        plVideoCard[i] = new VideoCard()
+                        {
+                            Title = card[i].cardTitle,
+                            Text = card[i].cardText,
+                            Subtitle = card[i].cardSubTitle,
+                            Media = mediaURL,
+                            Image = plThumnail,
+                            Buttons = cardButtons,
+                            Autostart = true
+                        };
+                        
+                        plAttachment[i] = plVideoCard[i].ToAttachment();
+                        reply.Attachments.Add(plAttachment[i]);
+                    }
+                }
                 var reply1 = await connector.Conversations.SendToConversationAsync(reply);
+
+                //비디오카드 선언
+                //VideoCard vdCard = new VideoCard()
+                //{
+                //    Title = "그랜다이저",
+                //    Autostart = false,
+                //    Subtitle = "Grandizer",
+                //    Text = "안녕하세요. 저는 현대자동차의 그랜저 ig를 소개하는 그랜다이저예요. \n\n 대화중 언제든지'그랜다이저' 라고 입력하면 초기 화면으로 돌아가요.            \n\n Hi. My name is Grandizer. \n\n At any time, type 'Grandizer' to return to the initial screen. ",
+                //    Image = new ThumbnailUrl
+                //    {
+                //        Url = "http://webbot02.azurewebsites.net/hyundai/images/img_car01.jpg"
+                //    },
+                //    Media = new List<MediaUrl>
+                //    {
+                //        new MediaUrl()
+                //        {
+                //            Url = "http://webbot02.azurewebsites.net/openning.wav"
+                //        }
+                //    },
+                //    Buttons = new List<CardAction>
+                //    {
+                //        new CardAction()
+                //        {
+                //            Title = "한국어1",
+                //            Type = ActionTypes.ImBack,
+                //            Value = "한국어로 해줘"
+                //        },
+                //        new CardAction()
+                //        {
+                //            Title = "english1",
+                //            Type = ActionTypes.ImBack,
+                //            Value = "hey there"
+                //        }
+                //    }
+                //};
+
+                //Attachment plAttachment = new Attachment();
+                //plAttachment = vdCard.ToAttachment();
+
+                //var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                //Activity reply = activity.CreateReply("");
+
+                //reply.Recipient = activity.From;
+                //reply.Type = "message";
+                //reply.Attachments = new List<Attachment>();
+                //reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+                //plAttachment = vdCard.ToAttachment();
+                //reply.Attachments.Add(plAttachment);
+
+                //var reply1 = await connector.Conversations.SendToConversationAsync(reply);
 
 
 
@@ -94,15 +180,35 @@ namespace Bot_Application1
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
                 Debug.WriteLine("Debuging :  " + Luis.intents[0].intent);
                 Debug.WriteLine("Debuging : " + Luis.entities[0].entity);
+                String entitiesStr = "";
+                
+                for(int i = 0; i < Luis.entities.Count(); i++)
+                {
+                    entitiesStr += Luis.entities[i].entity + ",";
+                }
+
+                entitiesStr = entitiesStr.Substring(0, entitiesStr.Length - 1).Replace(" ", "");
+
+                Debug.WriteLine("entitiesStr : " +entitiesStr);
+
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 // Db
                 DbConnect db = new DbConnect();
-                List<Car> card = db.SelectDb(Luis.intents[0].intent);
+                List<Luis> LuisDialogID = db.SelectLuis(Luis.intents[0].intent, entitiesStr);
 
-                // return our reply to the user
-                Activity reply = activity.CreateReply(card[0].cardMent);
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                List<Dialog> dlg = db.SelectDialog(LuisDialogID[0].dlgId);
+                
+                if(dlg.Count > 0)
+                {
+                    // return our reply to the user
+                    Activity reply = activity.CreateReply(dlg[0].dlgMent);
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                }
+                
+                List<Card> card = db.SelectDialogCard(LuisDialogID[0].dlgId);
+
+                
 
                 // HeroCard
                 Activity replyToConversation = activity.CreateReply("");
@@ -112,55 +218,88 @@ namespace Bot_Application1
                 replyToConversation.Attachments = new List<Attachment>();
                 replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                List<CardImage>[] cardImages = new List<CardImage>[card.Count];
-                List<CardAction>[] cardButtons = new List<CardAction>[card.Count];
-                CardAction[] plButton = new CardAction[card.Count];
-                HeroCard[] plCard = new HeroCard[card.Count];
-                Attachment[] plAttachment = new Attachment[card.Count];
+                //List<CardImage>[] cardImages = new List<CardImage>[card.Count];
+                //CardImage[] plImage = new CardImage[card.Count];
+
+                //List<CardAction>[] cardButtons = new List<CardAction>[card.Count];
+                //CardAction[] plButton = new CardAction[card.Count];
+
+                //HeroCard[] plCard = new HeroCard[card.Count];
+                //Attachment[] plAttachment = new Attachment[card.Count];
 
                 for (int i = 0; i < card.Count; i++)
                 {
-                    if(card[i].erase == "F")
+                    List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
+                    List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId);
+                    List<Media> media = db.SelectMedia(card[i].dlgId, card[i].cardId);
+
+                    List<CardImage> cardImages = new List<CardImage>();
+                    CardImage[] plImage = new CardImage[img.Count];
+
+                    List<CardAction> cardButtons = new List<CardAction>();
+                    CardAction[] plButton = new CardAction[btn.Count];
+
+                    List<MediaUrl> mediaURL = new List<MediaUrl>();
+                    MediaUrl[] plMediaUrl = new MediaUrl[media.Count];
+
+                    HeroCard[] plHeroCard = new HeroCard[card.Count];
+                    Attachment[] plAttachment = new Attachment[card.Count];
+
+
+                    for (int l = 0; l < img.Count; l++)
                     {
-                        cardImages[i] = new List<CardImage>();
-                        if (card[i].cardImage != null)
+                        if (img[l].imgUrl != null)
                         {
-                            cardImages[i].Add(new CardImage(url: card[i].cardImage));
-                        }
-                        
-                        cardButtons[i] = new List<CardAction>();
-                        if (card[i].cardButton != null)
-                        {
-                            Debug.WriteLine("???? : " + card[i].cardButton);
-
-                            plButton[i] = new CardAction()
+                            plImage[l] = new CardImage()
                             {
-                                Value = card[i].cardButtonContent,
-                                Type = "imBack",
-                                Title = card[i].cardButton
-                            };
-                            cardButtons[i].Add(plButton[i]);
-                        }
-                        //else
-                        //{
-                            
-                        //}
-
-                        if(card[i].cardType == "HEROCARD")
-                        {
-                            plCard[i] = new HeroCard()
-                            {
-                                Title = card[i].cardTitle,
-                                Text = card[i].cardText,
-                                Subtitle = card[i].cardSubTitle,
-                                Images = cardImages[i],
-                                Buttons = cardButtons[i]
+                                Url = img[l].imgUrl
                             };
                         }
-                        
-                        plAttachment[i] = plCard[i].ToAttachment();
+                    }
+                    cardImages = new List<CardImage>(plImage);
+
+                    for (int l = 0; l < media.Count; l++)
+                    {
+                        if (media[l].mediaUrl != null)
+                        {
+                            plMediaUrl[l] = new MediaUrl()
+                            {
+                                Url = media[l].mediaUrl
+                            };
+                        }
+                    }
+                    mediaURL = new List<MediaUrl>(plMediaUrl);
+
+                    for (int m = 0; m < btn.Count; m++)
+                    {
+                        if (btn[m].btnTitle != null)
+                        {
+                            plButton[m] = new CardAction()
+                            {
+                                Value = btn[m].btnContext,
+                                Type = btn[m].btnType,
+                                Title = btn[m].btnTitle
+                            };
+                        }
+                    }
+                    cardButtons = new List<CardAction>(plButton);
+
+
+                    if (card[i].cardType == "herocard")
+                    {
+                        plHeroCard[i] = new HeroCard()
+                        {
+                            Title = card[i].cardTitle,
+                            Text = card[i].cardText,
+                            Subtitle = card[i].cardSubTitle,
+                            Images = cardImages,
+                            Buttons = cardButtons
+                        };
+
+                        plAttachment[i] = plHeroCard[i].ToAttachment();
                         replyToConversation.Attachments.Add(plAttachment[i]);
                     }
+
                 }
 
                 var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
@@ -203,23 +342,23 @@ namespace Bot_Application1
         }
 
         private static async Task<LUIS> GetIntentFromLUIS(string Query)
-    {
-        Query = Uri.EscapeDataString(Query);
-        LUIS Data = new LUIS();
-        using (HttpClient client = new HttpClient())
         {
-            //string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=28745440-fd03-4658-b190-9c154fe89d89&subscription-key=7efb093087dd48918b903885b944740c&q=" + Query;
-              string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=1adab70c-f7a6-4d5c-9809-c27672653896&subscription-key=7489b95cf3fb4797939ea70ce94a4b11&q=" + Query;
-                HttpResponseMessage msg = await client.GetAsync(RequestURI);
-
-            if (msg.IsSuccessStatusCode)
+            Query = Uri.EscapeDataString(Query);
+            LUIS Data = new LUIS();
+            using (HttpClient client = new HttpClient())
             {
-                var JsonDataResponse = await msg.Content.ReadAsStringAsync();
-                Data = JsonConvert.DeserializeObject<LUIS>(JsonDataResponse);
+                //string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=28745440-fd03-4658-b190-9c154fe89d89&subscription-key=7efb093087dd48918b903885b944740c&q=" + Query;
+                  string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=1adab70c-f7a6-4d5c-9809-c27672653896&subscription-key=7489b95cf3fb4797939ea70ce94a4b11&q=" + Query;
+                    HttpResponseMessage msg = await client.GetAsync(RequestURI);
+
+                if (msg.IsSuccessStatusCode)
+                {
+                    var JsonDataResponse = await msg.Content.ReadAsStringAsync();
+                    Data = JsonConvert.DeserializeObject<LUIS>(JsonDataResponse);
+                }
             }
+            return Data;
         }
-        return Data;
-    }
 
     }
 
