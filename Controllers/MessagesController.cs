@@ -50,6 +50,7 @@ namespace Bot_Application1
 
                 VideoCard[] plVideoCard = new VideoCard[card.Count];
                 HeroCard[] plHeroCard = new HeroCard[card.Count];
+                ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
                 Attachment[] plAttachment = new Attachment[card.Count];
 
                 for (int i = 0; i < card.Count; i++)

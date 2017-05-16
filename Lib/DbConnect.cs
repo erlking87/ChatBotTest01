@@ -340,55 +340,55 @@ namespace Bot_Application1.Lib
             return media;
         }
 
-        public List<Car> SelectDb(string intent)
-        {
-            SqlDataReader rdr = null;
-            List<Car> card = new List<Car>();
+        //public List<Car> SelectDb(string intent)
+        //{
+        //    SqlDataReader rdr = null;
+        //    List<Car> card = new List<Car>();
 
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = "select * from tbl_card_test where INTENT = '"+ intent + "'";
+        //    using (SqlConnection conn = new SqlConnection(connStr))
+        //    {
+        //        conn.Open();
+        //        SqlCommand cmd = new SqlCommand();
+        //        cmd.Connection = conn;
+        //        cmd.CommandText = "select * from tbl_card_test where INTENT = '"+ intent + "'";
 
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+        //        rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
-                while (rdr.Read())
-                {
-                    string sid = rdr["SID"].ToString();
-                    string language = rdr["LANGUAGE"] as string;
-                    string cardType = rdr["CARD_TYPE"] as string;
-                    string cardMent = rdr["CARD_MENT"] as string;
-                    string cardTitle = rdr["CARD_TITLE"] as string;
-                    string cardSubTitle = rdr["CARD_SUBTITLE"] as string;
-                    string cardText = rdr["CARD_TEXT"] as string;
-                    string cardMedia = rdr["CARD_MEDIA"] as string;
-                    string cardImage = rdr["CARD_IMAGE"] as string;
-                    string cardButton = rdr["CARD_BUTTON"] as string;
-                    string cardButtonContent = rdr["CARD_BUTTON_CONTENT"] as string;
-                    string erase = rdr["ERASE"] as string;
+        //        while (rdr.Read())
+        //        {
+        //            string sid = rdr["SID"].ToString();
+        //            string language = rdr["LANGUAGE"] as string;
+        //            string cardType = rdr["CARD_TYPE"] as string;
+        //            string cardMent = rdr["CARD_MENT"] as string;
+        //            string cardTitle = rdr["CARD_TITLE"] as string;
+        //            string cardSubTitle = rdr["CARD_SUBTITLE"] as string;
+        //            string cardText = rdr["CARD_TEXT"] as string;
+        //            string cardMedia = rdr["CARD_MEDIA"] as string;
+        //            string cardImage = rdr["CARD_IMAGE"] as string;
+        //            string cardButton = rdr["CARD_BUTTON"] as string;
+        //            string cardButtonContent = rdr["CARD_BUTTON_CONTENT"] as string;
+        //            string erase = rdr["ERASE"] as string;
 
-                    Car car = new Car();
-                    car.sid = sid;
-                    car.language = language;
-                    car.cardType = cardType;
-                    car.cardMent = cardMent;
-                    car.cardTitle = cardTitle;
-                    car.cardSubTitle = cardSubTitle;
-                    car.cardText = cardText;
-                    car.cardMedia = cardImage;
-                    car.cardImage = cardImage;
-                    car.cardButton = cardButton;
-                    car.cardButtonContent = cardButtonContent;
-                    car.erase = erase;
+        //            Car car = new Car();
+        //            car.sid = sid;
+        //            car.language = language;
+        //            car.cardType = cardType;
+        //            car.cardMent = cardMent;
+        //            car.cardTitle = cardTitle;
+        //            car.cardSubTitle = cardSubTitle;
+        //            car.cardText = cardText;
+        //            car.cardMedia = cardImage;
+        //            car.cardImage = cardImage;
+        //            car.cardButton = cardButton;
+        //            car.cardButtonContent = cardButtonContent;
+        //            car.erase = erase;
 
-                    card.Add(car);
-                }
-            }
+        //            card.Add(car);
+        //        }
+        //    }
 
-            return card;
-        }
+        //    return card;
+        //}
 
     }
 }
