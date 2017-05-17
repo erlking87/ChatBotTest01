@@ -56,7 +56,7 @@ namespace Bot_Application1
                 for (int i = 0; i < card.Count; i++)
                 {
                     List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
-                    List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId);
+                    List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId); 
                     List<Media> media = db.SelectMedia(card[i].dlgId, card[i].cardId);
 
                     List<CardAction> cardButtons = new List<CardAction>();
