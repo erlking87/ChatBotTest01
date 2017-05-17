@@ -77,7 +77,7 @@ namespace Bot_Application1.Lib
             }
             catch (Exception e)
             {
-
+                
             }
             finally
             {
