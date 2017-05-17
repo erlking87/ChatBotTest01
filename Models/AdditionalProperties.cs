@@ -16,10 +16,10 @@ namespace Microsoft.Bot.Connector
         public const string ContentType = "application/vnd.microsoft.card.hero";
     }
     */
-    //public partial class ReceiptCard
-    //{
-    //    public const string ContentType = "application/vnd.microsoft.card.receipt";
-    //}
+    public partial class ReceiptCard
+    {
+        public const string ContentType = "application/vnd.microsoft.card.receipt";
+    }
 
     public partial class SigninCard
     {

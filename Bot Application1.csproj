@@ -129,6 +129,7 @@
     <Compile Include="Models\AdditionalProperties.cs" />
     <Compile Include="Models\CardEx.cs" />
     <Compile Include="Models\MediaUrl.cs" />
+    <Compile Include="Models\ReceiptCard.cs" />
     <Compile Include="Models\ThumbnailUrl.cs" />
     <Compile Include="Models\VideoCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
