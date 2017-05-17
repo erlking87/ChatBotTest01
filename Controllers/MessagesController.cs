@@ -52,7 +52,7 @@ namespace Bot_Application1
                 HeroCard[] plHeroCard = new HeroCard[card.Count];
                 ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
                 Attachment[] plAttachment = new Attachment[card.Count];
-
+                  
                 for (int i = 0; i < card.Count; i++)
                 {
                     List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
