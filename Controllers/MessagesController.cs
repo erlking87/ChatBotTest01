@@ -34,9 +34,15 @@ namespace Bot_Application1
             // welcome message 출력   
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
+                Debug.WriteLine("start activity.Timestamp : " + activity.Timestamp);
+                DateTime startTime = DateTime.Now;
+                long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
+                Debug.WriteLine("startTime : " + startTime);
+                Debug.WriteLine("startTime Millisecond : " + unixTime);
+
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 Activity reply = activity.CreateReply("");
-                
+
                 reply.Recipient = activity.From;
                 reply.Type = "message";
                 reply.Attachments = new List<Attachment>();
@@ -45,13 +51,14 @@ namespace Bot_Application1
                 // Db
                 DbConnect db = new DbConnect();
                 List<Dialog> dlg = db.SelectDialog(3);
-
+                Debug.WriteLine("!!!!!!!!!!! : "+ dlg[0].dlgId);
                 List<Card> card = db.SelectDialogCard(dlg[0].dlgId);
 
                 VideoCard[] plVideoCard = new VideoCard[card.Count];
                 HeroCard[] plHeroCard = new HeroCard[card.Count];
                 ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
                 Attachment[] plAttachment = new Attachment[card.Count];
+
                   
                 for (int i = 0; i < card.Count; i++)
                 {
@@ -112,7 +119,7 @@ namespace Bot_Application1
                             Media = mediaURL,
                             Image = plThumnail,
                             Buttons = cardButtons,
-                            Autostart = true
+                            Autostart = false
                         };
                         
                         plAttachment[i] = plVideoCard[i].ToAttachment();
@@ -120,9 +127,32 @@ namespace Bot_Application1
                     }
                 }
                 var reply1 = await connector.Conversations.SendToConversationAsync(reply);
+
+                Debug.WriteLine("activity : " + activity.Id);
+                Debug.WriteLine("activity : " + activity.ChannelId);
+                Debug.WriteLine("activity : " + activity.Conversation.Id);
+                Debug.WriteLine("activity : " + activity.Properties);
+                Debug.WriteLine("activity : " + activity.Recipient);
+                Debug.WriteLine("activity : " + activity.From.Id);
+                Debug.WriteLine("activity : " + activity.Recipient.Id);
+                Debug.WriteLine("end activity.Timestamp : " + activity.Timestamp);
+
+                DateTime endTime = DateTime.Now;
+                long unixTime1 = ((DateTimeOffset)endTime).ToUnixTimeSeconds();
+                Debug.WriteLine("endTime : " + endTime);
+                Debug.WriteLine("endTime Millisecond : " + unixTime1);
+
+                Debug.WriteLine("프로그램 수행시간 : {0}/ms", (endTime.Millisecond - startTime.Millisecond));
+
             }
             else if (activity.Type == ActivityTypes.Message)
             {
+                DateTime startTime = DateTime.Now;
+
+                long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
+                Debug.WriteLine("startTime : " + startTime);
+                Debug.WriteLine("startTime Millisecond : " + unixTime);
+
                 Debug.WriteLine("Debuging : " + activity.Text);
                 LUIS Luis = await GetIntentFromLUIS(activity.Text);
                 Debug.WriteLine("Debuging :  " + Luis.intents[0].intent);
@@ -151,135 +181,156 @@ namespace Bot_Application1
                 
                 if(dlg.Count > 0)
                 {
-                    // return our reply to the user
-                    Activity reply = activity.CreateReply(dlg[0].dlgMent);
-                    await connector.Conversations.ReplyToActivityAsync(reply);
+                    if(dlg[0].dlgMent != null)
+                    {
+                        // return our reply to the user
+                        Activity reply = activity.CreateReply(dlg[0].dlgMent);
+                        await connector.Conversations.ReplyToActivityAsync(reply);
+                    }
                 }
                 
                 List<Card> card = db.SelectDialogCard(LuisDialogID[0].dlgId);
 
-                
-
-                // HeroCard
-                Activity replyToConversation = activity.CreateReply("");
-
-                replyToConversation.Recipient = activity.From;
-                replyToConversation.Type = "message";
-                replyToConversation.Attachments = new List<Attachment>();
-                replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-
-                for (int i = 0; i < card.Count; i++)
+                if(card.Count > 0)
                 {
-                    List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
-                    List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId);
-                    List<Media> media = db.SelectMedia(card[i].dlgId, card[i].cardId);
+                    // HeroCard
+                    Activity replyToConversation = activity.CreateReply("");
 
-                    List<CardImage> cardImages = new List<CardImage>();
-                    CardImage[] plImage = new CardImage[img.Count];
+                    Debug.WriteLine("activity : " + activity.Id);
+                    Debug.WriteLine("activity : " + activity.Properties);
+                    Debug.WriteLine("activity : " + activity.Recipient);
+                    Debug.WriteLine("activity : " + activity.Summary);
+                    Debug.WriteLine("activity : " + activity.ReplyToId);
+                    Debug.WriteLine("activity : " + activity.Recipient.Id);
+                    Debug.WriteLine("activity : " + activity.Conversation.Id);
 
-                    ThumbnailUrl plThumnail = new ThumbnailUrl();
+                    replyToConversation.Recipient = activity.From;
+                    replyToConversation.Type = "message";
+                    replyToConversation.Attachments = new List<Attachment>();
+                    replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                    List<CardAction> cardButtons = new List<CardAction>();
-                    CardAction[] plButton = new CardAction[btn.Count];
-
-                    List<MediaUrl> mediaURL = new List<MediaUrl>();
-                    MediaUrl[] plMediaUrl = new MediaUrl[media.Count];
-
-                    ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
-                    HeroCard[] plHeroCard = new HeroCard[card.Count];
-                    VideoCard[] plVideoCard = new VideoCard[card.Count];
-                    Attachment[] plAttachment = new Attachment[card.Count];
-
-                    
-
-                    for (int l = 0; l < img.Count; l++)
+                    for (int i = 0; i < card.Count; i++)
                     {
-                        if(card[i].cardType == "herocard")
+                        List<Button> btn = db.SelectBtn(card[i].dlgId, card[i].cardId);
+                        List<Image> img = db.SelectImage(card[i].dlgId, card[i].cardId);
+                        List<Media> media = db.SelectMedia(card[i].dlgId, card[i].cardId);
+
+                        List<CardImage> cardImages = new List<CardImage>();
+                        CardImage[] plImage = new CardImage[img.Count];
+
+                        ThumbnailUrl plThumnail = new ThumbnailUrl();
+
+                        List<CardAction> cardButtons = new List<CardAction>();
+                        CardAction[] plButton = new CardAction[btn.Count];
+
+                        List<MediaUrl> mediaURL = new List<MediaUrl>();
+                        MediaUrl[] plMediaUrl = new MediaUrl[media.Count];
+
+                        ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
+                        HeroCard[] plHeroCard = new HeroCard[card.Count];
+                        VideoCard[] plVideoCard = new VideoCard[card.Count];
+                        Attachment[] plAttachment = new Attachment[card.Count];
+
+
+
+                        for (int l = 0; l < img.Count; l++)
                         {
-                            if (img[l].imgUrl != null)
+                            if (card[i].cardType == "herocard")
                             {
-                                plImage[l] = new CardImage()
+                                if (img[l].imgUrl != null)
                                 {
-                                    Url = img[l].imgUrl
+                                    plImage[l] = new CardImage()
+                                    {
+                                        Url = img[l].imgUrl
+                                    };
+                                }
+                            }
+                            else if (card[i].cardType == "herocard")
+                            {
+                                if (img[l].imgUrl != null)
+                                {
+                                    plThumnail.Url = img[l].imgUrl;
+                                }
+                            }
+                        }
+                        cardImages = new List<CardImage>(plImage);
+
+                        for (int l = 0; l < media.Count; l++)
+                        {
+                            if (media[l].mediaUrl != null)
+                            {
+                                plMediaUrl[l] = new MediaUrl()
+                                {
+                                    Url = media[l].mediaUrl
                                 };
                             }
                         }
-                        else if (card[i].cardType == "herocard")
+                        mediaURL = new List<MediaUrl>(plMediaUrl);
+
+                        for (int m = 0; m < btn.Count; m++)
                         {
-                            if (img[l].imgUrl != null)
+                            if (btn[m].btnTitle != null)
                             {
-                                plThumnail.Url = img[l].imgUrl;
+                                plButton[m] = new CardAction()
+                                {
+                                    Value = btn[m].btnContext,
+                                    Type = btn[m].btnType,
+                                    Title = btn[m].btnTitle
+                                };
                             }
                         }
-                    }
-                    cardImages = new List<CardImage>(plImage);
+                        cardButtons = new List<CardAction>(plButton);
 
-                    for (int l = 0; l < media.Count; l++)
-                    {
-                        if (media[l].mediaUrl != null)
+
+                        if (card[i].cardType == "herocard")
                         {
-                            plMediaUrl[l] = new MediaUrl()
+                            plHeroCard[i] = new HeroCard()
                             {
-                                Url = media[l].mediaUrl
+                                Title = card[i].cardTitle,
+                                Text = card[i].cardText,
+                                Subtitle = card[i].cardSubTitle,
+                                Images = cardImages,
+                                Buttons = cardButtons
                             };
-                        }
-                    }
-                    mediaURL = new List<MediaUrl>(plMediaUrl);
 
-                    for (int m = 0; m < btn.Count; m++)
-                    {
-                        if (btn[m].btnTitle != null)
+                            plAttachment[i] = plHeroCard[i].ToAttachment();
+                            replyToConversation.Attachments.Add(plAttachment[i]);
+                        }
+                        else if (card[i].cardType == "videocard")
                         {
-                            plButton[m] = new CardAction()
+                            plVideoCard[i] = new VideoCard()
                             {
-                                Value = btn[m].btnContext,
-                                Type = btn[m].btnType,
-                                Title = btn[m].btnTitle
+                                Title = card[i].cardTitle,
+                                Text = card[i].cardText,
+                                Subtitle = card[i].cardSubTitle,
+                                Image = plThumnail,
+                                Media = mediaURL,
+                                Buttons = cardButtons,
+                                Autostart = true
                             };
+
+                            plAttachment[i] = plVideoCard[i].ToAttachment();
+                            replyToConversation.Attachments.Add(plAttachment[i]);
                         }
+
                     }
-                    cardButtons = new List<CardAction>(plButton);
-
-
-                    if (card[i].cardType == "herocard")
-                    {
-                        plHeroCard[i] = new HeroCard()
-                        {
-                            Title = card[i].cardTitle,
-                            Text = card[i].cardText,
-                            Subtitle = card[i].cardSubTitle,
-                            Images = cardImages,
-                            Buttons = cardButtons
-                        };
-
-                        plAttachment[i] = plHeroCard[i].ToAttachment();
-                        replyToConversation.Attachments.Add(plAttachment[i]);
-                    }
-                    else if (card[i].cardType == "videocard")
-                    {
-                        plVideoCard[i] = new VideoCard()
-                        {
-                            Title = card[i].cardTitle,
-                            Text = card[i].cardText,
-                            Subtitle = card[i].cardSubTitle,
-                            Image = plThumnail,
-                            Media = mediaURL,
-                            Buttons = cardButtons,
-                            Autostart = true
-                        };
-
-                        plAttachment[i] = plVideoCard[i].ToAttachment();
-                        replyToConversation.Attachments.Add(plAttachment[i]);
-                    }
-
+                    var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
                 }
+                
+                DateTime endTime = DateTime.Now;
 
-                var reply1 = await connector.Conversations.SendToConversationAsync(replyToConversation);
+                long unixTime1 = ((DateTimeOffset)endTime).ToUnixTimeSeconds();
+                Debug.WriteLine("startTime : " + endTime);
+                Debug.WriteLine("startTime Millisecond : " + unixTime1);
+
+                Debug.WriteLine("프로그램 수행시간 : {0}/ms", (endTime.Millisecond - startTime.Millisecond));
             }
             else
             {
                 HandleSystemMessage(activity);
             }
+            
+
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }

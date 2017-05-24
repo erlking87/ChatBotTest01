@@ -26,6 +26,7 @@ namespace Bot_Application1.Lib
         public string cardText;
         public string cardTitle;
         public string cardSubTitle;
+        public string cardFact;
     }
 
     public class Button
@@ -47,6 +48,14 @@ namespace Bot_Application1.Lib
     }
 
     public class Media
+    {
+        public int mediaId;
+        public int dlgId;
+        public int cardId;
+        public string mediaUrl;
+    }
+
+    public class Items
     {
         public int mediaId;
         public int dlgId;
@@ -99,7 +108,9 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT DLG_ID, INTENT, ENTITIES FROM TBL_DLG_RELATION_LUIS WHERE INTENT = '" + intent + "' AND ENTITIES = '" + entities + "'" ;
+                //cmd.CommandText = "SELECT DLG_ID, INTENT, ENTITIES FROM TBL_DLG_RELATION_LUIS WHERE INTENT = '" + intent + "' AND ENTITIES = '" + entities + "'" ;
+
+                cmd.CommandText = "SELECT A.DLG_ID FROM TBL_DLG_RELATION_LUIS A, TBL_LUIS B WHERE B.LUIS_INTENT = '" + intent + "' AND B.LUIS_ENTITIES = '" + entities + "' AND A.LUIS_ID = B.LUIS_ID";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -133,7 +144,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT DLG_ID, DLG_NM, DLG_MENT, DLG_LANG FROM TBL_DLG WHERE DLG_ID = '" + dlgID  + "'";
+                cmd.CommandText = "SELECT DLG_ID, DLG_NM, DLG_MENT, DLG_LANG FROM TBL_DLG WHERE DLG_ID = '" + dlgID  + "' AND USE_YN = 'Y'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -175,7 +186,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT CARD_ID, DLG_ID, CARD_TYPE, CARD_TITLE, CARD_SUBTITLE, CARD_TEXT FROM TBL_DLG_CARD WHERE DLG_ID = " + dlgID ;
+                cmd.CommandText = "SELECT CARD_ID, DLG_ID, CARD_TYPE, CARD_TITLE, CARD_SUBTITLE, CARD_TEXT FROM TBL_DLG_CARD WHERE DLG_ID = " + dlgID + " AND USE_YN = 'Y'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -222,7 +233,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT DLG_ID, CARD_ID, BTN_ID, BTN_TYPE, BTN_TITLE, BTN_CONTEXT FROM TBL_DLG_BTN WHERE DLG_ID = " + dlgID + " AND CARD_ID = "+ cardID;
+                cmd.CommandText = "SELECT DLG_ID, CARD_ID, BTN_ID, BTN_TYPE, BTN_TITLE, BTN_CONTEXT FROM TBL_DLG_BTN WHERE DLG_ID = " + dlgID + " AND CARD_ID = "+ cardID + " AND USE_YN = 'Y'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -268,7 +279,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT IMG_ID, DLG_ID, CARD_ID, IMG_URL FROM TBL_DLG_IMG WHERE DLG_ID = " + dlgID + " AND CARD_ID = " + cardID;
+                cmd.CommandText = "SELECT IMG_ID, DLG_ID, CARD_ID, IMG_URL FROM TBL_DLG_IMG WHERE DLG_ID = " + dlgID + " AND CARD_ID = " + cardID + " AND USE_YN = 'Y'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -310,7 +321,7 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT MEDIA_ID, DLG_ID, CARD_ID, MEDIA_URL FROM TBL_DLG_MEDIA WHERE DLG_ID = " + dlgID + " AND CARD_ID = " + cardID;
+                cmd.CommandText = "SELECT MEDIA_ID, DLG_ID, CARD_ID, MEDIA_URL FROM TBL_DLG_MEDIA WHERE DLG_ID = " + dlgID + " AND CARD_ID = " + cardID + " AND USE_YN = 'Y'";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 

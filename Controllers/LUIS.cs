@@ -19,7 +19,6 @@ namespace Bot_Application1
     }
     public class Entity
     {
-
         public string entity { get; set; }
         public string type { get; set; }
         public int startIndex { get; set; }
