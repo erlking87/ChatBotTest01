@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
+
 using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
@@ -15,7 +17,7 @@ using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-
+using System.Web.Script.Serialization;
 
 namespace Bot_Application1
 {
@@ -27,22 +29,35 @@ namespace Bot_Application1
         /// Receive a message from a user and reply to it
         /// </summary>
         /// 
-        
+        //ThreadTest test = new ThreadTest();
+        //delegate void del_thread(string str);
+
+        //public static void new_thread(string name)
+        //{
+        //    Thread cur_thread = Thread.CurrentThread;
+        //    Debug.WriteLine("Current {0} Thread = {1}", name, cur_thread.ManagedThreadId);
+        //}
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            
+            //Thread workerThread = Thread.CurrentThread;
+            //Worker workerObject = new Worker();
+            //Thread workerThread = new Thread(workerObject.DoWork);
+
             // welcome message 출력   
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
-                Debug.WriteLine("start activity.Timestamp : " + activity.Timestamp);
-                DateTime startTime = DateTime.Now;
-                long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
-                Debug.WriteLine("startTime : " + startTime);
-                Debug.WriteLine("startTime Millisecond : " + unixTime);
+                
+                WeatherInfo weatherInfo = await GetWeatherInfo();
+                //weatherInfo.list[0].weather[0].description
+                Debug.WriteLine("weatherInfo :  " + weatherInfo.list[0].weather[0].description);
+                Debug.WriteLine("weatherInfo : " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.min, 1)));
+                Debug.WriteLine("weatherInfo : " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.max, 1)));
 
+                DateTime startTime = DateTime.Now;
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 Activity reply = activity.CreateReply("");
-
+                
                 reply.Recipient = activity.From;
                 reply.Type = "message";
                 reply.Attachments = new List<Attachment>();
@@ -119,7 +134,7 @@ namespace Bot_Application1
                             Media = mediaURL,
                             Image = plThumnail,
                             Buttons = cardButtons,
-                            Autostart = false
+                            Autostart = true
                         };
                         
                         plAttachment[i] = plVideoCard[i].ToAttachment();
@@ -138,15 +153,32 @@ namespace Bot_Application1
                 Debug.WriteLine("end activity.Timestamp : " + activity.Timestamp);
 
                 DateTime endTime = DateTime.Now;
-                long unixTime1 = ((DateTimeOffset)endTime).ToUnixTimeSeconds();
-                Debug.WriteLine("endTime : " + endTime);
-                Debug.WriteLine("endTime Millisecond : " + unixTime1);
+                Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
+                //GetWeatherInfo();
+                
 
-                Debug.WriteLine("프로그램 수행시간 : {0}/ms", (endTime.Millisecond - startTime.Millisecond));
 
             }
             else if (activity.Type == ActivityTypes.Message)
             {
+
+                
+                //test.resume();
+
+                //Thread.Sleep(3000);
+                //test.pause();
+
+                //Thread.Sleep(3000);
+                
+
+                //if (workerThread.IsAlive)
+                //{
+
+                //    workerObject.RequestStop();
+                //    workerThread.Join();
+                //    Debug.WriteLine("main thread: Worker thread has terminated.");
+                //}
+
                 DateTime startTime = DateTime.Now;
 
                 long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
@@ -245,7 +277,7 @@ namespace Bot_Application1
                                     };
                                 }
                             }
-                            else if (card[i].cardType == "herocard")
+                            else if (card[i].cardType == "videocard")
                             {
                                 if (img[l].imgUrl != null)
                                 {
@@ -318,22 +350,41 @@ namespace Bot_Application1
                 }
                 
                 DateTime endTime = DateTime.Now;
+                Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
 
-                long unixTime1 = ((DateTimeOffset)endTime).ToUnixTimeSeconds();
-                Debug.WriteLine("startTime : " + endTime);
-                Debug.WriteLine("startTime Millisecond : " + unixTime1);
+                //Debug.WriteLine("current main thread = {0}",workerThread.ManagedThreadId);
 
-                Debug.WriteLine("프로그램 수행시간 : {0}/ms", (endTime.Millisecond - startTime.Millisecond));
+                //del_thread new_th = new del_thread(new_thread);
+
+                //new_th.BeginInvoke("TEST", null, null);
+                //Thread.Sleep(3000);
+
+                //// Start the worker thread.
+                //workerThread.Start();
+                //Debug.WriteLine("ID : "+ workerThread.ManagedThreadId);
+                //Debug.WriteLine("main thread: Starting worker thread...");
+
+                //// Loop until worker thread activates.
+                //while (!workerThread.IsAlive) ;
+
+                //Thread.Sleep(5);
+                //test.resume();
+
+                //Thread.Sleep(30000);
             }
             else
             {
                 HandleSystemMessage(activity);
             }
-            
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
+
+        //private void GetWeatherInfo()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         private Activity HandleSystemMessage(Activity message)
         {
@@ -383,6 +434,89 @@ namespace Bot_Application1
             return Data;
         }
 
+        private static async Task<WeatherInfo> GetWeatherInfo()
+
+        {
+            WeatherInfo weather = new WeatherInfo();
+            Debug.WriteLine("1");
+            
+
+            using (HttpClient client = new HttpClient())
+            {
+                string appId = "0221b2d1d8edb99a011cd7a3f152b756";
+
+                string url = string.Format("http://api.openweathermap.org/data/2.5/forecast/daily?q={0}&units=metric&cnt=1&APPID={1}", "Seoul", appId);
+
+                Debug.WriteLine("2");
+
+                HttpResponseMessage msg = await client.GetAsync(url);
+
+                if (msg.IsSuccessStatusCode)
+                {
+                    var JsonDataResponse = await msg.Content.ReadAsStringAsync();
+                    weather = JsonConvert.DeserializeObject<WeatherInfo>(JsonDataResponse);
+                }
+
+                //string json = client.DownloadString(url);
+
+                //Debug.WriteLine("3");
+
+                //WeatherInfo weatherInfo = (new JavaScriptSerializer()).Deserialize<WeatherInfo>(json);
+
+                //Debug.WriteLine("Weather Info :::::::::: " + weatherInfo.city.name + "," + weatherInfo.city.country);
+                //Debug.WriteLine("Weather Info :::::::::: " + weatherInfo.list[0].weather[0].description);
+                //Debug.WriteLine("Weather Info :::::::::: " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.min, 1)));
+                //Debug.WriteLine("Weather Info :::::::::: " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.max, 1)));
+                //Debug.WriteLine("Weather Info :::::::::: " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.day, 1)));
+                //Debug.WriteLine("Weather Info :::::::::: " + weatherInfo.list[0].humidity.ToString());
+                //lblCity_Country.Text = weatherInfo.city.name + "," + weatherInfo.city.country;
+
+                //imgCountryFlag.ImageUrl = string.Format("http://openweathermap.org/images/flags/{0}.png", weatherInfo.city.country.ToLower());
+
+                //lblDescription.Text = weatherInfo.list[0].weather[0].description;
+
+                //imgWeatherIcon.ImageUrl = string.Format("http://openweathermap.org/img/w/{0}.png", weatherInfo.list[0].weather[0].icon);
+
+                //lblTempMin.Text = string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.min, 1));
+
+                //lblTempMax.Text = string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.max, 1));
+
+                //lblTempDay.Text = string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.day, 1));
+
+                //lblTempNight.Text = string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.night, 1));
+
+                //lblHumidity.Text = weatherInfo.list[0].humidity.ToString();
+
+                //tblWeather.Visible = true;
+
+                return weather;
+
+            }
+
+        }
+
     }
+
+    //public class Worker
+    //{
+    //    // This method will be called when the thread is started.
+    //    public void DoWork()
+    //    {
+    //        while (!_shouldStop)
+    //        {
+    //            Debug.WriteLine("worker thread: working...");
+    //            Thread.Sleep(5);
+    //        }
+    //        Debug.WriteLine("worker thread: terminating gracefully.");
+    //    }
+    //    public void RequestStop()
+    //    {
+    //        _shouldStop = true;
+    //    }
+    //    // Volatile is used as hint to the compiler that this data
+    //    // member will be accessed by multiple threads.
+    //    private volatile bool _shouldStop;
+    //}
+
 
 }

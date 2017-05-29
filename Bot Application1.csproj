@@ -126,6 +126,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Lib\DbConnect.cs" />
+    <Compile Include="Lib\WeatherInfo.cs" />
     <Compile Include="Models\AdditionalProperties.cs" />
     <Compile Include="Models\CardEx.cs" />
     <Compile Include="Models\MediaUrl.cs" />

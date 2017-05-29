@@ -112,6 +112,9 @@ namespace Bot_Application1.Lib
 
                 cmd.CommandText = "SELECT A.DLG_ID FROM TBL_DLG_RELATION_LUIS A, TBL_LUIS B WHERE B.LUIS_INTENT = '" + intent + "' AND B.LUIS_ENTITIES = '" + entities + "' AND A.LUIS_ID = B.LUIS_ID";
 
+
+                //cmd.Parameters.AddWithValue("",intent);
+
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 while (rdr.Read())
@@ -144,7 +147,10 @@ namespace Bot_Application1.Lib
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT DLG_ID, DLG_NM, DLG_MENT, DLG_LANG FROM TBL_DLG WHERE DLG_ID = '" + dlgID  + "' AND USE_YN = 'Y'";
+                //cmd.CommandText = "SELECT DLG_ID, DLG_NM, DLG_MENT, DLG_LANG FROM TBL_DLG WHERE DLG_ID = '" + dlgID  + "' AND USE_YN = 'Y'";
+                cmd.CommandText = "SELECT DLG_ID, DLG_NM, DLG_MENT, DLG_LANG FROM TBL_DLG WHERE DLG_ID = @dlgID AND USE_YN = 'Y'";
+
+                cmd.Parameters.AddWithValue("@dlgID", dlgID);
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
