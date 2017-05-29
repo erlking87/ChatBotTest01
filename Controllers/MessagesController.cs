@@ -55,23 +55,42 @@ namespace Bot_Application1
                 Debug.WriteLine("weatherInfo : " + string.Format("{0}°С", Math.Round(weatherInfo.list[0].temp.max, 1)));
 
                 DateTime startTime = DateTime.Now;
-                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                Activity reply = activity.CreateReply("");
+                //ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                //Activity reply = activity.CreateReply("");
                 
-                reply.Recipient = activity.From;
-                reply.Type = "message";
-                reply.Attachments = new List<Attachment>();
-                reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                //reply.Recipient = activity.From;
+                //reply.Type = "message";
+                //reply.Attachments = new List<Attachment>();
+                //reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                 // Db
                 DbConnect db = new DbConnect();
                 List<Dialog> dlg = db.SelectDialog(3);
                 Debug.WriteLine("!!!!!!!!!!! : "+ dlg[0].dlgId);
+
+
+
+                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                
+
+                Activity reply2 = activity.CreateReply();
+                reply2.Recipient = activity.From;
+                reply2.Type = "message";
+                reply2.Attachments = new List<Attachment>();
+                reply2.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+                //reply.Recipient = activity.From;
+                //reply.Type = "message";
+                //reply.Attachments = new List<Attachment>();
+                //reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+
                 List<Card> card = db.SelectDialogCard(dlg[0].dlgId);
 
                 VideoCard[] plVideoCard = new VideoCard[card.Count];
                 HeroCard[] plHeroCard = new HeroCard[card.Count];
                 ReceiptCard[] plReceiptCard = new ReceiptCard[card.Count];
+
                 Attachment[] plAttachment = new Attachment[card.Count];
 
                   
@@ -128,7 +147,7 @@ namespace Bot_Application1
                     {
                         plVideoCard[i] = new VideoCard()
                         {
-                            Title = card[i].cardTitle,
+                            Title = "**"+card[i].cardTitle+ "**",
                             Text = card[i].cardText,
                             Subtitle = card[i].cardSubTitle,
                             Media = mediaURL,
@@ -138,10 +157,10 @@ namespace Bot_Application1
                         };
                         
                         plAttachment[i] = plVideoCard[i].ToAttachment();
-                        reply.Attachments.Add(plAttachment[i]);
+                        reply2.Attachments.Add(plAttachment[i]);
                     }
                 }
-                var reply1 = await connector.Conversations.SendToConversationAsync(reply);
+                var reply1 = await connector.Conversations.SendToConversationAsync(reply2);
 
                 Debug.WriteLine("activity : " + activity.Id);
                 Debug.WriteLine("activity : " + activity.ChannelId);
@@ -155,7 +174,17 @@ namespace Bot_Application1
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 //GetWeatherInfo();
-                
+
+                Activity reply = activity.CreateReply();
+                for (int n = 0; n < dlg[0].dlgMent.Split(new string[] { "@@" }, StringSplitOptions.None).Length; n++)//new string[] {"@@"},StringSplitOptions.None
+                {
+
+                    reply = activity.CreateReply(dlg[0].dlgMent.Split(new string[] { "@@" }, StringSplitOptions.None)[n]);
+                    await connector.Conversations.SendToConversationAsync(reply);
+
+                }
+                Activity testReply = activity.CreateReply("**가나다라마바사**  `jumped`");
+                await connector.Conversations.SendToConversationAsync(testReply);
 
 
             }
