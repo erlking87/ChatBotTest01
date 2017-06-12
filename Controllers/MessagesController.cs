@@ -18,6 +18,7 @@ using Microsoft.Bot.Builder.Luis.Models;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
+using Bot_Application1.Models;
 
 namespace Bot_Application1
 {
@@ -189,8 +190,8 @@ namespace Bot_Application1
 
 
                 Activity replyToConversation = activity.CreateReply("Should go to conversation, in carousel format");
-                //replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                replyToConversation.AttachmentLayout = "test";
+                replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                //replyToConversation.AttachmentLayout = "test";
                 replyToConversation.Attachments = new List<Attachment>();
 
                 Dictionary<string, string> cardContentList = new Dictionary<string, string>();
@@ -214,12 +215,13 @@ namespace Bot_Application1
 
                     cardButtons.Add(plButton);
 
-                    HeroCard plCard = new HeroCard()
+                    NewHeroCard plCard = new NewHeroCard()
                     {
                         Title = $"I'm a hero card about {cardContent.Key}",
                         Subtitle = $"{cardContent.Key} Wikipedia Page",
                         Images = cardImages,
-                        Buttons = cardButtons
+                        Buttons = cardButtons,
+                        Kind = "test"
                     };
 
                     Attachment attachment = plCard.ToAttachment();
