@@ -187,6 +187,48 @@ namespace Bot_Application1
                 await connector.Conversations.SendToConversationAsync(testReply);
 
 
+
+                Activity replyToConversation = activity.CreateReply("Should go to conversation, in carousel format");
+                //replyToConversation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                replyToConversation.AttachmentLayout = "test";
+                replyToConversation.Attachments = new List<Attachment>();
+
+                Dictionary<string, string> cardContentList = new Dictionary<string, string>();
+                cardContentList.Add("PigLatin", "http://webbot02.azurewebsites.net/hyundai/images/price/Grandeur_24spec.PNG");
+                cardContentList.Add("Pork Shoulder", "http://webbot02.azurewebsites.net/hyundai/images/price/Grandeur_24spec.PNG");
+                cardContentList.Add("Bacon", "http://webbot02.azurewebsites.net/hyundai/images/price/Grandeur_24spec.PNG");
+
+                foreach (KeyValuePair<string, string> cardContent in cardContentList)
+                {
+                    List<CardImage> cardImages = new List<CardImage>();
+                    cardImages.Add(new CardImage(url: cardContent.Value));
+
+                    List<CardAction> cardButtons = new List<CardAction>();
+
+                    CardAction plButton = new CardAction()
+                    {
+                        Value = $"https://en.wikipedia.org/wiki/{cardContent.Key}",
+                        Type = "openUrl",
+                        Title = "WikiPedia Page"
+                    };
+
+                    cardButtons.Add(plButton);
+
+                    HeroCard plCard = new HeroCard()
+                    {
+                        Title = $"I'm a hero card about {cardContent.Key}",
+                        Subtitle = $"{cardContent.Key} Wikipedia Page",
+                        Images = cardImages,
+                        Buttons = cardButtons
+                    };
+
+                    Attachment attachment = plCard.ToAttachment();
+                    replyToConversation.Attachments.Add(attachment);
+                }
+
+                await connector.Conversations.SendToConversationAsync(replyToConversation);
+
+
             }
             else if (activity.Type == ActivityTypes.Message)
             {
